@@ -114,8 +114,9 @@ class Database(QtCore.QObject):
 
     def undo(self):
         j = self.history.pop()
-        print(j)
-        print("UNDO")
+        j = json.loads(j)
+        self.root = Entity.fromDict(j)
+        self.selectedEntity = None
         self.onUndoSignal.emit()
         self.onHistoryChange.emit()
 

@@ -27,8 +27,8 @@ class View(QWidget):
         container.setMaximumSize(view.screen().size())
 
         #Qt3DRender.QPickingSettings.AllPicks
-        self.picker = Qt3DRender.QObjectPicker(root)
-        self.picker.clicked.connect(self.clicked)
+        #self.picker = Qt3DRender.QObjectPicker(root)
+        #self.picker.clicked.connect(self.clicked)
         #self.picker.released.connect(self.clicked)
 
         layout = QVBoxLayout(self)
@@ -53,6 +53,8 @@ class View(QWidget):
         self.database.onFpsCameraSignal.connect(self.onFpsCamera)
         self.database.onOrbitCameraSignal.connect(self.onOrbitCamera)
 
+        self.database.onUndoSignal.connect(self.onUndo)
+
     def onFpsCamera(self):
         self.view.camController = Qt3DExtras.QFirstPersonCameraController(self.root)
         self.view.camController.setLinearSpeed(25)
@@ -75,6 +77,11 @@ class View(QWidget):
 
     def _clear(self):
         self.entityMap = {}
+        pass
+
+    def onUndo(self):
+        self._clear()
+        self._loadEntity(self.database.root)
         pass
 
     def _configureCamera(self):
@@ -118,7 +125,7 @@ class View(QWidget):
         entity.addComponent(mesh)
         entity.addComponent(transform)
         entity.addComponent(material)
-        entity.addComponent(self.picker)
+        #entity.addComponent(self.picker)
         self.entityMap[newEntity] = Viewable(transform, mesh, material, entity)
 
     def onEntityDestroyed(self, destroyedEntity):

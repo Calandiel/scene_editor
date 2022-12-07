@@ -85,6 +85,9 @@ class Hierarchy(QWidget):
         database.onEntityCreatedSignal.connect(self.onEntityCreated)
         database.onEntityRenamedSignal.connect(self.onEntityRenamed)
 
+        database.onUndoSignal.connect(self.refreshHierarchy)
+        database.onRedoSignal.connect(self.refreshHierarchy)
+
         database.onHistoryChange.connect(self._checkRedoUndoButtonVisibility)
 
         database.onFpsCameraSignal.connect(self.onFpsCamera)
