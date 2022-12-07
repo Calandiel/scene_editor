@@ -6,7 +6,7 @@ Requires PySide2 installed on the system.
 ## Controls
 ### Orbit mode (default)
 - Left Mouse Button - panning the camera
-- Right Mouse Button - rotate around the view center
+- Right Mouse Button - rotating around the view center
 - Mouse Wheel - moving the camera forward/backward
 ### FPS mode
 - Left Mouse Button - panning the camera up/down/left/right
