@@ -10,5 +10,5 @@ Requires PySide2 installed on the system.
 - Mouse Wheel - moving the camera forward/backward
 ### FPS mode
 - Left Mouse Button - panning the camera up/down/left/right
-- Mouse Wheel - moving the camera forward/backward
 - Right Mouse Button - rotating the camera
+- Mouse Wheel - moving the camera forward/backward
