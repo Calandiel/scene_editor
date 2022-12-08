@@ -1,19 +1,11 @@
+from PySide2.QtWidgets import QApplication, QWidget, QHBoxLayout
 import sys
 import importlib
-import PySide2 as ps
-from PySide2.QtCore import Qt, Slot
-from PySide2.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QDialog, QMainWindow
-from PySide2.QtGui import QGuiApplication, QMatrix4x4, QQuaternion, QVector3D
-from PySide2.Qt3DCore import Qt3DCore
-from PySide2.Qt3DExtras import Qt3DExtras
-import PySide2.Qt3DRender
 
 from widgets.hierarchy import Hierarchy
 from widgets.inspector import Inspector
 from widgets.view import View
-
 from data.database import Database
-from data.entity import Entity
 
 class Editor(QWidget):
     def __init__(self):
