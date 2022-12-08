@@ -130,9 +130,9 @@ class View(QWidget):
         self.entityMap[newEntity] = Viewable(transform, mesh, material, entity)
 
     def onEntityDestroyed(self, destroyedEntity):
-        self.entityMap.pop(destroyedEntity, None)
         for c in destroyedEntity.children:
             self.onEntityDestroyed(c)
+        self.entityMap.pop(destroyedEntity, None)
 
     def onEntityMoved(self, movedEntity, newPosition):
         transform = self.entityMap[movedEntity].transform

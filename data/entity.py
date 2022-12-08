@@ -1,8 +1,10 @@
 import weakref
 from PySide2.QtGui import QVector3D, QColor, QQuaternion
+from PySide2 import QtCore
 
-class Entity:
+class Entity(QtCore.QObject):
     def __init__(self):
+        super().__init__()
         self.children = []
         self.parent = None
         self.name = "Entity"
