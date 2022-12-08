@@ -3,8 +3,13 @@ from PySide2.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QLineEd
 from PySide2.QtGui import QVector3D, QColor, QQuaternion
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QDoubleValidator
-from utilities import indexVector3D, indexQuaternion
+from utilities import indexVector3D, indexQuaternion, writeVector3D, writeQuaternion, copyVector3D, copyColor, copyQuaternion, writeColor
 from data.entity import CubeEntity, SphereEntity
+
+class VectorFieldSpinBox(QDoubleSpinBox):
+    def __init__(self, coord=0):
+        super().__init__()
+        self.coord = coord
 
 class Inspector(QWidget):
     def __init__(self, database, parent=None):
@@ -76,8 +81,10 @@ class Inspector(QWidget):
         widget.setLayout(layout)
         label = QLabel(name, alignment=Qt.AlignLeft)
 
-        inputs = [QDoubleSpinBox() for x in range(size)]
+        inputs = [VectorFieldSpinBox(x) for x in range(size)]
         layout.addWidget(label)
+
+
         for i in inputs:
             i.setSingleStep(increment)
             layout.addWidget(i)
@@ -89,8 +96,11 @@ class Inspector(QWidget):
                 i.setMaximum(sys.float_info.max)
             else:
                 i.setMaximum(maxv)
-            if editedCallback != None:
-                i.valueChanged.connect(editedCallback)
+
+        if editedCallback != None:
+            lambdas = (lambda v, i=i: editedCallback(i, v) for i in range(size))
+            for i, l in zip(inputs, lambdas):
+                i.valueChanged.connect(l)
 
         return (widget, inputs)
 
@@ -99,35 +109,32 @@ class Inspector(QWidget):
         #print("Edit: ", text)
         self.database.entityRenamed(self.database.selectedEntity, text)
 
-    def positionEdited(self, _):
-        vals = [float(x.cleanText()) for x in self.positionWidgetTexts]
-        newPosition = QVector3D(vals[0], vals[1], vals[2])
+    def positionEdited(self, i, val):
+        newPosition = copyVector3D(self.database.selectedEntity.position)
+        writeVector3D(newPosition, i, val)
         if newPosition != self.database.selectedEntity.position:
-            #print("Position edited!")
             self.database.entityMoved(self.database.selectedEntity, newPosition)
 
-    def rotationEdited(self, _):
-        vals = [float(x.cleanText()) for x in self.rotationWidgetTexts]
-        newRotation = QQuaternion(vals[0], vals[1], vals[2], vals[3])
+    def rotationEdited(self, i, val):
+        newRotation = copyQuaternion(self.database.selectedEntity.rotation)
+        writeQuaternion(newRotation, i, val)
         if newRotation != self.database.selectedEntity.rotation:
-            #print("Position edited!")
             self.database.entityRotated(self.database.selectedEntity, newRotation)
 
-    def colorEdited(self, _):
-        vals = [int(float(x.cleanText())) for x in self.colorWidgetTexts]
-        newColor = QColor(vals[0], vals[1], vals[2])
+    def colorEdited(self, i, val):
+        newColor = copyColor(self.database.selectedEntity.color)
+        writeColor(newColor, i, val)
         if newColor != self.database.selectedEntity.color:
-            #print(newColor, self.database.selectedEntity.color)
             self.database.entityColorChanged(self.database.selectedEntity, newColor)
 
-    def cubeDimensionsEdited(self, _):
-        vals = [float(x.cleanText()) for x in self.cubeWidgetTexts]
-        newDimensions = QVector3D(vals[0], vals[1], vals[2])
+    def cubeDimensionsEdited(self, i, val):
+        newDimensions = copyVector3D(self.database.selectedEntity.dimensions)
+        writeVector3D(newDimensions, i, val)
         if newDimensions != self.database.selectedEntity.dimensions:
             self.database.entityCubeDimensionsChanged(self.database.selectedEntity, newDimensions)
 
-    def sphereRadiusEdited(self, _):
-        val = float(self.sphereWidgetTexts[0].cleanText())
+    def sphereRadiusEdited(self, _, val):
+        #val = float(self.sphereWidgetTexts[0].cleanText())
         if val != self.database.selectedEntity.radius:
             self.database.entitySphereRadiusChanged(self.database.selectedEntity, val)
 
@@ -160,19 +167,11 @@ class Inspector(QWidget):
             for i, t in enumerate(self.colorWidgetTexts):
                 t.value = self.database.selectedEntity.color.getRgb()[i]
 
-            # setValue emits a signal when the new value differs from old. To avoid it here (as to guard against infinite recursion), we call it *after* setting the value manually
-            for t in self.positionWidgetTexts:
-                t.setValue(t.value)
-            for t in self.rotationWidgetTexts:
-                t.setValue(t.value)
-            for t in self.colorWidgetTexts:
-                t.setValue(t.value)
-
             if isinstance(self.database.selectedEntity, CubeEntity):
                 self.cubeWidget.show()
                 for i, t in enumerate(self.cubeWidgetTexts):
                     t.value = indexVector3D(self.database.selectedEntity.dimensions, i)
-                for t in self.cubeWidgetTexts:
+                for i, t in enumerate(self.cubeWidgetTexts):
                     t.setValue(t.value)
             else:
                 self.cubeWidget.hide()
@@ -184,6 +183,14 @@ class Inspector(QWidget):
                     t.setValue(t.value)
             else:
                 self.sphereWidget.hide()
+
+            # setValue emits a signal when the new value differs from old. To avoid it here (as to guard against infinite recursion), we call it *after* setting the value manually
+            for t in self.positionWidgetTexts:
+                t.setValue(t.value)
+            for t in self.rotationWidgetTexts:
+                t.setValue(t.value)
+            for t in self.colorWidgetTexts:
+                t.setValue(t.value)
         else:
             self.nameWidget.hide()
             self.positionWidget.hide()

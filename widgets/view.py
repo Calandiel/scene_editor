@@ -132,7 +132,7 @@ class View(QWidget):
     def onEntityDestroyed(self, destroyedEntity):
         self.entityMap.pop(destroyedEntity, None)
         for c in destroyedEntity.children:
-            self.entityMap.pop(c, None)
+            self.onEntityDestroyed(c)
 
     def onEntityMoved(self, movedEntity, newPosition):
         transform = self.entityMap[movedEntity].transform
