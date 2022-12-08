@@ -53,7 +53,8 @@ class View(QWidget):
         self.database.onFpsCameraSignal.connect(self.onFpsCamera)
         self.database.onOrbitCameraSignal.connect(self.onOrbitCamera)
 
-        self.database.onUndoSignal.connect(self.onUndo)
+        self.database.onUndoSignal.connect(self.onUndoRedo)
+        self.database.onRedoSignal.connect(self.onUndoRedo)
 
     def onFpsCamera(self):
         self.view.camController = Qt3DExtras.QFirstPersonCameraController(self.root)
@@ -79,7 +80,7 @@ class View(QWidget):
         self.entityMap = {}
         pass
 
-    def onUndo(self):
+    def onUndoRedo(self):
         self._clear()
         self._loadEntity(self.database.root)
         pass

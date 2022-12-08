@@ -35,7 +35,7 @@ class Hierarchy(QWidget):
         redoUndoLayout.addWidget(undoButton)
         redoUndoLayout.addWidget(redoButton)
         undoButton.clicked.connect(database.undo)
-        #redoButton.clicked.connect(database.redo)
+        redoButton.clicked.connect(database.redo)
         policy = undoButton.sizePolicy()
         policy.setRetainSizeWhenHidden(True)
         undoButton.setSizePolicy(policy)
@@ -140,7 +140,6 @@ class Hierarchy(QWidget):
             entity = MeshEntity(fileName[0])
             self.database.entityCreated(entity)
 
-
     def handleRemoveButtonHideState(self):
         if self.database.selectedEntity != None and self.database.selectedEntity.getParent() != None:
             self.removeButton.show()
@@ -155,6 +154,7 @@ class Hierarchy(QWidget):
         self.tree.expandAll()
         self.tree.setHeaderLabels(["Hierarchy"])
         #self.tree.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self._checkRedoUndoButtonVisibility()
 
 
     def onEntitySelected(self):

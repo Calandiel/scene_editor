@@ -123,16 +123,30 @@ class Database(QtCore.QObject):
 
     def undo(self):
         j = self.history.pop()
-        self.redoBuffer.append(j)
+        self.redoBuffer.append(json.dumps(self.root.toDict()))
         j = json.loads(j)
         self.root = Entity.fromDict(j)
+        #print(j)
         #self.dumpEntityTree()
         self.selectedEntity = None
         self.onUndoSignal.emit()
         self.onHistoryChange.emit()
+        self.backup()
+
+    def redo(self):
+        j = self.redoBuffer.pop()
+        self.history.append(json.dumps(self.root.toDict()))
+        j = json.loads(j)
+        self.root = Entity.fromDict(j)
+        #print(j)
+        #self.dumpEntityTree()
+        self.selectedEntity = None
+        self.onRedoSignal.emit()
+        self.onHistoryChange.emit()
+        self.backup()
 
     def backup(self):
-        print("backup")
+        #print("backup")
         f = open("cache.bin", "w")
         d = json.dumps(self.root.toDict(), indent=2)
         f.write(d)
@@ -142,6 +156,7 @@ class Database(QtCore.QObject):
         d = json.dumps(self.root.toDict())
         self.history.append(d)
         self.onHistoryChange.emit()
+        self.redoBuffer = []
 
     # Prints the entity tree, for debugging purposes
     def dumpEntityTree(self):
