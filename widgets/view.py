@@ -67,8 +67,8 @@ class View(QWidget):
         self.view.camController.setLookSpeed(150)
         self.view.camController.setCamera(self.view.camera())
 
-    def clicked(self, e):
-        print("Picked: ", type(e))
+    #def clicked(self, e):
+    #    print("Picked: ", type(e))
 
     def _loadEntity(self, e):
         for c in e.children:

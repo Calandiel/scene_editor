@@ -65,6 +65,9 @@ class Inspector(QWidget):
         self.database.onEntityDestroyedSignal.connect(self.onEntityDestroyed)
         self.database.onEntityRenamedSignal.connect(self.onEntityRenamed)
 
+        self.database.onUndoSignal.connect(self.refreshInspector)
+        self.database.onRedoSignal.connect(self.refreshInspector)
+
 
     def _createVectorEditor(self, name, minv=None, maxv=None, size=3, editedCallback=None, increment=0.01):
         widget = QWidget()

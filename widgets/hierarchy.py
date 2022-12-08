@@ -3,6 +3,8 @@ from PySide2.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QTreeWi
 from PySide2.QtCore import Qt, Slot
 from data.entity import CubeEntity, SphereEntity, MeshEntity
 
+# A data type used for drawing the entity tree in the hierarchy
+# Recursively creates all necessary children items given an entity.
 class HierarchyItem(QTreeWidgetItem):
     def __init__(self, entity):
         super().__init__()
@@ -19,12 +21,14 @@ class Hierarchy(QWidget):
         self.setFixedWidth(300)
         self.database = database
 
+        # Initial camera setup
         self.cameraToFpsButton = QPushButton("Change camera to FPS")
         self.cameraToOrbitButton = QPushButton("Change camera to orbit")
         self.cameraToOrbitButton.hide()
         self.cameraToFpsButton.clicked.connect(self.database.onFpsCameraSignal)
         self.cameraToOrbitButton.clicked.connect(self.database.onOrbitCameraSignal)
 
+        # Redo/undo buttons
         redoUndoLayout = QHBoxLayout()
         undoButton = QPushButton("Undo")
         redoButton = QPushButton("Redo")
@@ -42,6 +46,7 @@ class Hierarchy(QWidget):
         self.redoButton = redoButton
         self._checkRedoUndoButtonVisibility()
 
+        # Entity creation/deletion buttons
         newCubeButton = QPushButton("Cube")
         newSphereButton = QPushButton("Sphere")
         newMeshButton = QPushButton("Mesh")
@@ -70,7 +75,7 @@ class Hierarchy(QWidget):
         self.tree = tree
         self.refreshHierarchy()
 
-        #
+        # Main layout
         layout = QVBoxLayout(alignment=Qt.AlignTop)
         layout.addWidget(self.cameraToFpsButton)
         layout.addWidget(self.cameraToOrbitButton)
@@ -80,6 +85,7 @@ class Hierarchy(QWidget):
         #layout.addWidget(label)
         self.setLayout(layout)
 
+        # Connecting signals
         database.onEntitySelectedSignal.connect(self.onEntitySelected)
         database.onEntityDestroyedSignal.connect(self.onEntityDestroyed)
         database.onEntityCreatedSignal.connect(self.onEntityCreated)
@@ -112,6 +118,10 @@ class Hierarchy(QWidget):
             self.undoButton.show()
         else:
             self.undoButton.hide()
+        if(len(self.database.redoBuffer) > 0):
+            self.redoButton.show()
+        else:
+            self.redoButton.hide()
 
     def entityDestroyed(self):
         self.database.entityDestroyed(self.database.selectedEntity)
@@ -126,8 +136,9 @@ class Hierarchy(QWidget):
 
     def meshCreated(self):
         fileName = QFileDialog.getOpenFileName(self, "Load Mesh", "", "Stl files (*.stl)")
-        entity = MeshEntity(fileName[0])
-        self.database.entityCreated(entity)
+        if fileName[0] != "":
+            entity = MeshEntity(fileName[0])
+            self.database.entityCreated(entity)
 
 
     def handleRemoveButtonHideState(self):
@@ -136,6 +147,7 @@ class Hierarchy(QWidget):
         else:
             self.removeButton.hide()
 
+    # Updates the hierarchy
     def refreshHierarchy(self):
         self.tree.clear()
         root = HierarchyItem(self.database.root)
